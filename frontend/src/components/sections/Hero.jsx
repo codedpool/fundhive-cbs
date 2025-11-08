@@ -28,7 +28,7 @@ export const Hero = () => {
   return (
     <section
       ref={heroRef}
-      className="pt-8 pb-20 md:pt-5 md:pb-10 bg-[radial-gradient(ellipse_200%_100%_at_bottom_left,#183ec2,#eaeefe_100%)] overflow-x-clip"
+      className="pt-24 pb-20 md:pt-20 md:pb-10 bg-[radial-gradient(ellipse_200%_120%_at_bottom_left,#183ec2,#eaeefe_100%)] overflow-x-clip -mt-20"
     >
       <div className="container">
         <div className="md:flex items-center">
