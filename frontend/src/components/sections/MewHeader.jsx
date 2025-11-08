@@ -2,10 +2,10 @@ import React from "react";
 import ArrowRight from "../../assets/arrow-right.svg";
 import Logo from "../../assets/logosaas.png";
 import MenuIcon from "../../assets/menu-icon.svg";
-import { useAuth0 } from "@auth0/auth0-react"; // ✅ only if using Auth0
+import { useAuth0 } from "@auth0/auth0-react"; 
 
 const MewHeader = () => {
-  const { loginWithRedirect } = useAuth0(); // ✅ optional
+  const { loginWithRedirect } = useAuth0();
 
   return (
     <header className="sticky top-0 backdrop-blur-sm z-20">
