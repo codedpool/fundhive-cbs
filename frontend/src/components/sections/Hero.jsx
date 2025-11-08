@@ -66,11 +66,18 @@ export const Hero = () => {
 <motion.img
   src={cylinderImage} // <-- remove .src
   alt="Cylinder Image"
-  width={220}
-  height={220}
+  width={300}
+  height={300}
   className="hidden md:block -top-8 -left-32 md:absolute"
-  style={{ translateY: translateY }}
+  animate={{ translateY: [-30, 30] }} // add this for motion
+  transition={{
+    repeat: Infinity,
+    repeatType: "mirror",
+    duration: 3,
+    ease: "easeInOut",
+  }}
 />
+
 
 <motion.img
   src={noodleImage} // <-- remove .src
