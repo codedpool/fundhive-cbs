@@ -73,6 +73,8 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         method: 'POST',
         headers: {
           'X-User-ID': user.sub,
+          'X-User-Name': user.name || '',
+          'X-User-Picture': user.picture || '',
           Authorization: `Bearer ${token}`,
         },
         body: formData,

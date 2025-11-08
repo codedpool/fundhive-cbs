@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const { upload } = require('../config/multerConfig');
 const { uploadToS3 } = require('../utils/s3Utils');
+const { ensureUser } = require('../utils/userUtils');
 
 const uploadAadhaar = [
   upload.single('aadhaar'),
@@ -9,8 +10,13 @@ const uploadAadhaar = [
       const userId = req.headers['x-user-id'];
       if (!userId) return res.status(401).json({ message: 'User ID required' });
 
-      let user = await User.findOne({ auth0Id: userId });
-      if (!user) return res.status(404).json({ message: 'User not found' });
+      // Get optional user info from headers
+      const userPicture = req.headers['x-user-picture'] || null;
+      const userName = req.headers['x-user-name'] || null;
+
+      // Ensure user exists in database (create if doesn't exist)
+      // This allows first-time users to upload Aadhaar before creating projects
+      let user = await ensureUser(userId, userName, null, userPicture);
 
       if (!req.file) return res.status(400).json({ message: 'Aadhaar card file required' });
 
