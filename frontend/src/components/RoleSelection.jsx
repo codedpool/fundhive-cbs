@@ -6,14 +6,8 @@ export function RoleSelection({ onBack }) {
   const { loginWithRedirect } = useAuth0();
 
   const handleRoleSelect = (role) => {
-    console.log('Role selected:', role);
-    
     // Store the selected role in localStorage to use after Auth0 redirect
     localStorage.setItem('selectedRole', role);
-    
-    // Verify storage
-    const stored = localStorage.getItem('selectedRole');
-    console.log('Role stored in localStorage:', stored);
     
     // Redirect to Auth0 with the role in the state
     loginWithRedirect({
