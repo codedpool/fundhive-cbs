@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { X, User, Briefcase, ChevronRight, Settings, LogOut, Trash2, Upload, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { fetchUserProfile } from '../services/apiService';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,6 +21,21 @@ export function UserProfile({ onClose, handleDeleteProject }) {
     const fetchUserData = async () => {
       try {
         const token = await getAccessTokenSilently();
+        
+        // Fetch user profile data using API service
+        const profileData = await fetchUserProfile(user.sub, getAccessTokenSilently);
+        if (profileData) {
+          setUserProfile(profileData);
+          setAadhaarCardUrl(profileData.aadhaarCardUrl || null);
+          console.log('User profile loaded:', { 
+            username: profileData.username, 
+            hasAadhaar: !!profileData.aadhaarCardUrl 
+          });
+        } else {
+          console.log('User profile not found, user may not exist yet');
+        }
+        
+        // Fetch user projects
         const response = await fetch(`${API_URL}/projects`, {
           headers: { 
             'X-User-ID': user.sub,
@@ -41,11 +57,6 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         setProjects(userProjects);
         setNegotiationRequests(requests);
 
-        // Get user profile data from the first user project's userId data
-        if (userProjects.length > 0 && userProjects[0].userId) {
-          setUserProfile(userProjects[0].userId);
-          setAadhaarCardUrl(userProjects[0].userId.aadhaarCardUrl || null);
-        }
       } catch (err) {
         console.error('Error fetching user data:', err);
       }
@@ -70,6 +81,7 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         headers: {
           'X-User-ID': user.sub,
           'X-User-Name': user.name || '',
+          'X-User-Email': user.email || '',
           'X-User-Picture': user.picture || '',
           Authorization: `Bearer ${token}`,
         },
@@ -85,6 +97,18 @@ export function UserProfile({ onClose, handleDeleteProject }) {
       setAadhaarCardUrl(result.aadhaarCardUrl);
       setAadhaarFile(null);
       setUploadError(null);
+      
+      // Refresh user profile data to ensure it's updated
+      try {
+        const profileData = await fetchUserProfile(user.sub, getAccessTokenSilently);
+        if (profileData) {
+          setUserProfile(profileData);
+          setAadhaarCardUrl(profileData.aadhaarCardUrl || null);
+        }
+      } catch (profileErr) {
+        console.error('Error refreshing profile after upload:', profileErr);
+      }
+      
       alert('Aadhaar card uploaded successfully!');
     } catch (err) {
       setUploadError(err.message);

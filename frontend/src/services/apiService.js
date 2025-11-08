@@ -1,6 +1,25 @@
 // frontend/src/services/apiService.js
 const API_URL = import.meta.env.VITE_API_URL;
 
+export async function fetchUserProfile(userId, getAccessTokenSilently) {
+  const token = await getAccessTokenSilently();
+  const response = await fetch(`${API_URL}/user/profile`, {
+    headers: {
+      'X-User-ID': userId,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null; // User doesn't exist yet
+    }
+    throw new Error('Failed to fetch user profile');
+  }
+
+  return response.json();
+}
+
 export async function fetchProjects(userId, getAccessTokenSilently) {
   const token = await getAccessTokenSilently();
   const response = await fetch(`${API_URL}/projects`, {

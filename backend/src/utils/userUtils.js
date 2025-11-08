@@ -13,15 +13,38 @@ async function ensureUser(userId, name, email, userPicture) {
       username = `${baseUsername}${counter++}`;
     }
 
+    // Handle the duplicate key error for null emails temporarily
+    // Until we fix the database index
+    const userEmail = email || undefined; // Use undefined instead of null to avoid duplicate key error
+
     user = new User({
       auth0Id: userId,
       name: name || 'Unnamed User',
-      email: email || null,
+      email: userEmail,
       avatarUrl: userPicture || 'https://via.placeholder.com/64',
       username,
     });
-    await user.save();
-    console.log('New user created:', { username: user.username, name: user.name, avatarUrl: user.avatarUrl });
+    
+    try {
+      await user.save();
+      console.log('New user created:', { username: user.username, name: user.name, avatarUrl: user.avatarUrl });
+    } catch (error) {
+      if (error.code === 11000 && error.keyPattern && error.keyPattern.email) {
+        // Handle duplicate null email error by omitting the email field entirely
+        console.log('Duplicate null email detected, creating user without email field');
+        user = new User({
+          auth0Id: userId,
+          name: name || 'Unnamed User',
+          // email: omitted to avoid duplicate key error
+          avatarUrl: userPicture || 'https://via.placeholder.com/64',
+          username,
+        });
+        await user.save();
+        console.log('New user created without email field:', { username: user.username, name: user.name, avatarUrl: user.avatarUrl });
+      } else {
+        throw error; // Re-throw if it's not the email duplicate key error
+      }
+    }
   } else {
     console.log('User exists, checking for updates:', { 
       currentName: user.name, 

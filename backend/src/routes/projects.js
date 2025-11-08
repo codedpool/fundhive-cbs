@@ -12,12 +12,16 @@ const {
 const { negotiateInvestment, respondToNegotiation } = require('../controllers/negotiateInvestment');
 const aiAnalysis = require('../controllers/aiAnalysis');
 const uploadAadhaar = require('../controllers/uploadAadhaar');
+const getUserProfile = require('../controllers/getUserProfile');
+const createOrUpdateUser = require('../controllers/createOrUpdateUser');
 
 const router = express.Router();
 
 router.post('/projects', createProject);
 router.get('/projects', getProjects);
 router.get('/projects/:id', getProjectById);
+router.get('/user/profile', getUserProfile); // New route for user profile
+router.post('/user/create', createOrUpdateUser); // New route to create/update user
 router.post('/posts/:id/like', likeProject);
 router.post('/posts/:id/comments', addComment);
 router.post('/posts/:id/invest', investInProject);
