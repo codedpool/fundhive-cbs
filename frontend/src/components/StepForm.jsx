@@ -11,7 +11,7 @@ import ConsentDeclaration from './steps/ConsentDeclaration';
 
 function StepForm({ step, formData, setFormData, handleFileChange, loading }) {
   return (
-    <div className="p-6">
+    <div className="p-8 min-h-[500px]">
       {step === 1 && <BasicCompanyInfo formData={formData} setFormData={setFormData} loading={loading} />}
       {step === 2 && <FounderDetails formData={formData} setFormData={setFormData} loading={loading} handleFileChange={handleFileChange} />}
       {step === 3 && <BusinessModel formData={formData} setFormData={setFormData} loading={loading} handleFileChange={handleFileChange} />}
