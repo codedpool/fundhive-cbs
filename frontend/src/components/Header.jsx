@@ -25,7 +25,7 @@ function Header({
               <h1 className="text-2xl font-bold text-gray-900">FundHive</h1>
               {userRole && (
                 <p className="text-xs text-gray-500">
-                  {userRole === 'startup' ? 'Startup Dashboard' : 'Investment Platform'} • Role: {userRole}
+                  {userRole === 'startup' ? 'Startup Dashboard' : 'Investment Platform'}
                 </p>
               )}
             </div>

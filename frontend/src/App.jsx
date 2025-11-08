@@ -18,21 +18,6 @@ function App() {
   const [userProfile, setUserProfile] = React.useState(null);
   const [profileLoading, setProfileLoading] = React.useState(true);
   
-  // Function to refresh user profile
-  const refreshUserProfile = React.useCallback(async () => {
-    if (isAuthenticated && user) {
-      try {
-        const profile = await fetchUserProfile(user.sub, getAccessTokenSilently);
-        setUserProfile(profile);
-        console.log('Profile refreshed:', profile);
-        return profile;
-      } catch (error) {
-        console.error('Failed to refresh profile:', error);
-        return null;
-      }
-    }
-  }, [isAuthenticated, user, getAccessTokenSilently]);
-  
   const {
     selectedCategory,
     setSelectedCategory,
@@ -65,14 +50,12 @@ function App() {
         try {
           // Check if we have a role stored in localStorage (from registration)
           const selectedRole = localStorage.getItem('selectedRole');
-          console.log('Checking localStorage for role:', selectedRole);
           
           if (selectedRole) {
-            console.log('Found role in localStorage, setting role:', selectedRole);
             // Send role to backend first
             try {
               const token = await getAccessTokenSilently();
-              const response = await fetch(`${API_URL}/user/set-role`, {
+              await fetch(`${API_URL}/user/set-role`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -85,32 +68,16 @@ function App() {
                 body: JSON.stringify({ role: selectedRole }),
               });
               
-              if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to set role');
-              }
-              
-              const result = await response.json();
-              console.log('Role set successfully:', result);
-              
               // Clear the stored role
               localStorage.removeItem('selectedRole');
+              console.log('Role assigned successfully:', selectedRole);
             } catch (roleError) {
               console.error('Error setting user role:', roleError);
-              alert(`Failed to set role: ${roleError.message}`);
             }
           }
           
-          // Then fetch the updated profile (with retry for role)
-          let profile = await fetchUserProfile(user.sub, getAccessTokenSilently);
-          
-          // If we just set a role but the profile doesn't have it yet, wait and retry
-          if (selectedRole && (!profile || !profile.role || profile.role !== selectedRole)) {
-            console.log('Role not yet reflected in profile, retrying...');
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-            profile = await fetchUserProfile(user.sub, getAccessTokenSilently);
-          }
-          
+          // Then fetch the updated profile
+          const profile = await fetchUserProfile(user.sub, getAccessTokenSilently);
           setUserProfile(profile);
           console.log('User profile loaded:', {
             username: profile?.username,
@@ -195,22 +162,6 @@ function App() {
             handleDeleteProject={handleDeleteProject}
             userProfile={userProfile}
           />
-          
-          {/* Debug Panel - Remove this in production */}
-          {import.meta.env.DEV && (
-            <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-lg text-xs max-w-xs">
-              <h4 className="font-bold mb-2">Debug Info</h4>
-              <p>User ID: {user?.sub}</p>
-              <p>Profile Role: {userProfile?.role || 'Not set'}</p>
-              <p>LocalStorage Role: {localStorage.getItem('selectedRole') || 'None'}</p>
-              <button 
-                onClick={refreshUserProfile}
-                className="mt-2 bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700"
-              >
-                Refresh Profile
-              </button>
-            </div>
-          )}
         </div>
       )}
     </>
