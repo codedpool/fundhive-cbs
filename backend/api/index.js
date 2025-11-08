@@ -18,7 +18,7 @@ const getFrontendOrigin = () => {
   if (!raw) return undefined;
   // Remove accidental whitespace
   let url = raw.replace(/\s+/g, '');
-  // If someone accidentally appended letters after the port (e.g. 5173s), strip them
+  
   url = url.replace(/(:\d+)[A-Za-z]+$/, '$1');
   try {
     // Validate URL format
