@@ -55,40 +55,31 @@ export const Hero = () => {
           </div>
 
           <div className="mt-20 md:mt-0 md:h-[648px] md:flex-1 relative">
-            <motion.img
-              src={cogImage.src}
-              alt="Cog image"
-              className="md:absolute md:h-full md:w-auto md:max-w-none md:-left-6 lg:left-0"
-              animate={{
-                translateY: [-30, 30],
-              }}
-              transition={{
-                repeat: Infinity,
-                repeatType: "mirror",
-                duration: 3,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.img
-              src={cylinderImage.src}
-              alt="cylinder Image"
-              width={220}
-              height={220}
-              className="hidden md:block -top-8 -left-32 md:absolute"
-              style={{
-                translateY: translateY,
-              }}
-            />
-            <motion.img
-              src={noodleImage.src}
-              width={220}
-              alt="noodleImage"
-              className="hidden lg:block absolute top-[524px] left-[448px] rotate-[30deg]"
-              style={{
-                rotate: 30,
-                translateY: translateY,
-              }}
-            />
+         <motion.img
+  src={cogImage} // <-- remove .src
+  alt="Cog image"
+  className="md:absolute md:h-full md:w-auto md:max-w-none md:-left-6 lg:left-0"
+  animate={{ translateY: [-30, 30] }}
+  transition={{ repeat: Infinity, repeatType: "mirror", duration: 3, ease: "easeInOut" }}
+/>
+
+<motion.img
+  src={cylinderImage} // <-- remove .src
+  alt="Cylinder Image"
+  width={220}
+  height={220}
+  className="hidden md:block -top-8 -left-32 md:absolute"
+  style={{ translateY: translateY }}
+/>
+
+<motion.img
+  src={noodleImage} // <-- remove .src
+  alt="Noodle Image"
+  width={220}
+  className="hidden lg:block absolute top-[524px] left-[448px] rotate-[30deg]"
+  style={{ translateY: translateY }}
+/>
+
           </div>
         </div>
       </div>
