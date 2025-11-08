@@ -4,6 +4,7 @@ import MewHeader from './sections/MewHeader';
 import { Hero } from './sections/Hero';
 import { ProductShowcase } from './sections/ProductShowcase';
 import { Pricing } from './sections/Pricing';
+import { Testimonials } from './sections/Testimonials';
 
 
 export function Login() { 
@@ -16,6 +17,7 @@ export function Login() {
       <Hero />
       <ProductShowcase />
       <Pricing />
+      <Testimonials />
       </>
   );
 }
