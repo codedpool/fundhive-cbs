@@ -1,10 +1,9 @@
 "use client";
 
-import ArrowIcon from "@/assets/arrow-right.svg";
-import cogImage from "@/assets/cog.png";
-import cylinderImage from "@/assets/cylinder.png";
-import noodleImage from "@/assets/noodle.png";
-import Image from "next/image";
+import ArrowRight from "../../assets/arrow-right.svg";
+import cogImage from "../../assets/cogImage.png";
+import cylinderImage from  "../../assets/cylinder.png";
+import noodleImage from  "../../assets/noodle.png";
 import {
   motion,
   useScroll,
@@ -46,7 +45,11 @@ export const Hero = () => {
               <button className="btn btn-primary">Get for free</button>
               <button className="btn btn-text gap-1">
                 <span>Learn more</span>
-                <ArrowIcon className="h-5 w-5" />
+                 <img
+                            src={ArrowRight}
+                            alt="Arrow Right"
+                            className="h-5 w-5 inline-flex justify-center items-center"
+                          />
               </button>
             </div>
           </div>
