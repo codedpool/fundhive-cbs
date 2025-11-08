@@ -28,12 +28,37 @@ const uploadAadhaar = [
 
       if (!req.file) return res.status(400).json({ message: 'Aadhaar card file required' });
 
-      const filename = `${userId}-aadhaar-${Date.now()}.pdf`; // Assuming PDF format
+      // Get file extension from original filename and validate
+      const fileExtension = req.file.originalname.split('.').pop().toLowerCase();
+      const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+      
+      if (!allowedExtensions.includes(fileExtension)) {
+        return res.status(400).json({ 
+          message: 'Invalid file type. Please upload a PDF, JPG, JPEG, or PNG file.' 
+        });
+      }
+
+      const filename = `${userId}-aadhaar-${Date.now()}.${fileExtension}`;
+      console.log('Uploading file:', { originalName: req.file.originalname, filename, fileSize: req.file.size });
+      
       const s3Response = await uploadToS3(req.file, filename);
       const aadhaarCardUrl = s3Response.Location;
 
+      console.log('S3 upload successful:', aadhaarCardUrl);
+      console.log('User before update:', { 
+        id: user._id, 
+        username: user.username, 
+        currentAadhaar: user.aadhaarCardUrl 
+      });
+
       user.aadhaarCardUrl = aadhaarCardUrl;
-      await user.save();
+      const savedUser = await user.save();
+      
+      console.log('User after save:', { 
+        id: savedUser._id, 
+        username: savedUser.username, 
+        aadhaarCardUrl: savedUser.aadhaarCardUrl 
+      });
 
       res.status(200).json({ message: 'Aadhaar card uploaded successfully', aadhaarCardUrl });
     } catch (error) {
