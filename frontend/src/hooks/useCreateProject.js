@@ -68,6 +68,7 @@ export function useCreateProject({ onClose }) {
         method: 'POST',
         headers: {
           'X-User-ID': user.sub,
+          'X-User-Email': user.email || '',
           'X-User-Picture': user.picture || '',
           Authorization: `Bearer ${token}`,
         },

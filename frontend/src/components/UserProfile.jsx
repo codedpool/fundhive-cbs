@@ -70,6 +70,7 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         headers: {
           'X-User-ID': user.sub,
           'X-User-Name': user.name || '',
+          'X-User-Email': user.email || '',
           'X-User-Picture': user.picture || '',
           Authorization: `Bearer ${token}`,
         },

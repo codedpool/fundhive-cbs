@@ -11,8 +11,9 @@ const createProject = [
       const { title, description, category, fundingGoal, equityOffered, duration, name, email } = req.body;
       const userId = req.headers['x-user-id'];
       const userPicture = req.headers['x-user-picture'];
+      const userEmail = email || req.headers['x-user-email'] || null; // Fallback to header if body email is missing
       console.log('Creating project with userId:', userId);
-      console.log('User data from request:', { name, email, userPicture });
+      console.log('User data from request:', { name, email: userEmail, userPicture });
 
       if (!userId) return res.status(401).json({ message: 'User ID required' });
       if (!title || !description || !category || !fundingGoal || !equityOffered || !duration) {
@@ -25,7 +26,7 @@ const createProject = [
         return res.status(403).json({ message: 'Please upload your Aadhaar card in your profile before creating a project.' });
       }
 
-      await ensureUser(userId, name, email, userPicture);
+      await ensureUser(userId, name, userEmail, userPicture);
 
       let mediaUrl = null;
       if (req.file) {

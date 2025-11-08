@@ -10,13 +10,21 @@ const uploadAadhaar = [
       const userId = req.headers['x-user-id'];
       if (!userId) return res.status(401).json({ message: 'User ID required' });
 
-      // Get optional user info from headers
+      // Get user info from headers and body
       const userPicture = req.headers['x-user-picture'] || null;
       const userName = req.headers['x-user-name'] || null;
+      const userEmail = req.headers['x-user-email'] || req.body.email || null;
+
+      console.log('Upload Aadhaar - User data received:', {
+        userId,
+        userName,
+        userEmail,
+        userPicture: userPicture ? 'present' : 'missing'
+      });
 
       // Ensure user exists in database (create if doesn't exist)
       // This allows first-time users to upload Aadhaar before creating projects
-      let user = await ensureUser(userId, userName, null, userPicture);
+      let user = await ensureUser(userId, userName, userEmail, userPicture);
 
       if (!req.file) return res.status(400).json({ message: 'Aadhaar card file required' });
 
