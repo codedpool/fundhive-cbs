@@ -11,6 +11,7 @@ function Header({
   setShowProfile,
   setShowCreateProject,
   setNotifications,
+  userRole,
 }) {
   const unreadNotifications = notifications.filter((n) => !n.read).length;
 
@@ -20,16 +21,33 @@ function Header({
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <Rocket className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">FundHive</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">FundHive</h1>
+              {userRole && (
+                <p className="text-xs text-gray-500">
+                  {userRole === 'startup' ? 'Startup Dashboard' : 'Investment Platform'} • Role: {userRole}
+                </p>
+              )}
+            </div>
           </div>
           <nav className="flex items-center space-x-4">
-            <button
-              onClick={() => setShowCreateProject(true)}
-              className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-            >
-              <Plus className="w-5 h-5" />
-              <span>Raise Money</span>
-            </button>
+            {userRole === 'startup' ? (
+              <button
+                onClick={() => setShowCreateProject(true)}
+                className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <Plus className="w-5 h-5" />
+                <span>New Project</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowCreateProject(true)}
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Raise Money</span>
+              </button>
+            )}
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
@@ -59,7 +77,7 @@ function Header({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
-            placeholder="Search projects..."
+            placeholder={userRole === 'startup' ? "Search your projects..." : "Search startups to invest..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"

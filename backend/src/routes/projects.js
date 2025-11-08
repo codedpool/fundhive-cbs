@@ -14,6 +14,7 @@ const aiAnalysis = require('../controllers/aiAnalysis');
 const uploadAadhaar = require('../controllers/uploadAadhaar');
 const getUserProfile = require('../controllers/getUserProfile');
 const createOrUpdateUser = require('../controllers/createOrUpdateUser');
+const setUserRole = require('../controllers/setUserRole');
 
 const router = express.Router();
 
@@ -22,6 +23,7 @@ router.get('/projects', getProjects);
 router.get('/projects/:id', getProjectById);
 router.get('/user/profile', getUserProfile); // New route for user profile
 router.post('/user/create', createOrUpdateUser); // New route to create/update user
+router.post('/user/set-role', setUserRole); // New route to set user role
 router.post('/posts/:id/like', likeProject);
 router.post('/posts/:id/comments', addComment);
 router.post('/posts/:id/invest', investInProject);

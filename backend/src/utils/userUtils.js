@@ -104,4 +104,14 @@ async function ensureUser(userId, name, email, userPicture) {
   return user;
 }
 
-module.exports = { ensureUser };
+function extractUserFromHeaders(headers) {
+  return {
+    auth0Id: headers['x-user-id'],
+    name: headers['x-user-name'],
+    email: headers['x-user-email'],
+    picture: headers['x-user-picture'],
+    username: (headers['x-user-name'] || 'user').replace(/\s+/g, '').toLowerCase()
+  };
+}
+
+module.exports = { ensureUser, extractUserFromHeaders };
