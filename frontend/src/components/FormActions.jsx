@@ -13,13 +13,13 @@ function FormActions({ step, setStep, handleSubmit, loading }) {
         >
           Back
         </button>
-        {step === 3 ? (
+        {step === 9 ? (
           <button
             onClick={handleSubmit}
-            className={`px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
             disabled={loading}
           >
-            {loading ? 'Creating...' : 'Create Project'}
+            {loading ? 'Submitting Application...' : 'Submit Application'}
           </button>
         ) : (
           <button
@@ -30,6 +30,11 @@ function FormActions({ step, setStep, handleSubmit, loading }) {
             Next
           </button>
         )}
+      </div>
+      
+      {/* Progress indicator */}
+      <div className="mt-4 text-center text-sm text-gray-600">
+        Step {step} of 9
       </div>
     </div>
   );
