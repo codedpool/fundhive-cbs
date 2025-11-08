@@ -19,7 +19,7 @@ const MewHeader = () => {
         </div>
       </div>
 
-      <div className="py-5">
+      <div className="py-5 bg-transparent">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between">
             <img src={Logo} alt="Saas Logo" height={40} width={40} />
