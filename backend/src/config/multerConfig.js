@@ -12,13 +12,18 @@ const upload = multer({
       'image/jpeg',
       'image/png',
       'video/mp4',
-      'application/pdf', // Add PDF support for Aadhaar card
+      'application/pdf',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // Excel files
+      'text/plain',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // Word files
     ];
 
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only JPEG, PNG, MP4, and PDF are allowed.'), false);
+      cb(new Error('Invalid file type. Please check allowed file formats.'), false);
     }
   },
 });

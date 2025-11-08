@@ -28,7 +28,7 @@ function Header({
               className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
             >
               <Plus className="w-5 h-5" />
-              <span>Create Project</span>
+              <span>Raise Money</span>
             </button>
             <div className="relative">
               <button
