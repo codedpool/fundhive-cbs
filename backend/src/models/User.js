@@ -8,6 +8,12 @@ const userSchema = new mongoose.Schema({
   avatarUrl: { type: String },
   username: { type: String, required: true, unique: true },
   aadhaarCardUrl: { type: String }, // New field for Aadhaar card URL
+  role: { 
+    type: String, 
+    enum: ['user', 'startup'], 
+    default: 'user',
+    required: true 
+  }, // New field for user role
   createdAt: { type: Date, default: Date.now },
 });
 

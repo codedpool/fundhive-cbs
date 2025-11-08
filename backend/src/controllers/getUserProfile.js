@@ -19,10 +19,15 @@ const getUserProfile = async (req, res) => {
       username: user.username,
       avatarUrl: user.avatarUrl,
       aadhaarCardUrl: user.aadhaarCardUrl,
+      role: user.role, // Add role field
       createdAt: user.createdAt
     };
 
-    console.log('User profile fetched:', { username: user.username, hasAadhaar: !!user.aadhaarCardUrl });
+    console.log('User profile fetched:', { 
+      username: user.username, 
+      role: user.role,
+      hasAadhaar: !!user.aadhaarCardUrl 
+    });
 
     res.status(200).json(userProfile);
   } catch (error) {

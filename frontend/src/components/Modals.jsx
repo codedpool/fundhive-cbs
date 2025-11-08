@@ -7,12 +7,17 @@ function Modals({
   setShowProfile,
   showCreateProject,
   onCloseCreateProject,
-  handleDeleteProject, // Add this prop
+  handleDeleteProject,
+  userProfile,
 }) {
   return (
     <>
       {showProfile && (
-        <UserProfile onClose={() => setShowProfile(false)} handleDeleteProject={handleDeleteProject} />
+        <UserProfile 
+          onClose={() => setShowProfile(false)} 
+          handleDeleteProject={handleDeleteProject}
+          userProfile={userProfile}
+        />
       )}
       {showCreateProject && <CreateProject onClose={onCloseCreateProject} />}
     </>

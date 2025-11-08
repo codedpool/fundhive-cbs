@@ -6,10 +6,10 @@ import { fetchUserProfile } from '../services/apiService';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export function UserProfile({ onClose, handleDeleteProject }) {
+export function UserProfile({ onClose, handleDeleteProject, userProfile: propUserProfile }) {
   const { user, logout, getAccessTokenSilently } = useAuth0();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('investments');
+  const [activeTab, setActiveTab] = useState(propUserProfile?.role === 'startup' ? 'projects' : 'investments');
   const [projects, setProjects] = useState([]);
   const [negotiationRequests, setNegotiationRequests] = useState([]);
   const [aadhaarCardUrl, setAadhaarCardUrl] = useState(null);
@@ -57,13 +57,22 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         setProjects(userProjects);
         setNegotiationRequests(requests);
 
+        // Use passed profile if available, otherwise try to get from projects
+        if (propUserProfile) {
+          setUserProfile(propUserProfile);
+          setAadhaarCardUrl(propUserProfile.aadhaarCardUrl || null);
+        } else if (userProjects.length > 0 && userProjects[0].userId) {
+          setUserProfile(userProjects[0].userId);
+          setAadhaarCardUrl(userProjects[0].userId.aadhaarCardUrl || null);
+        }
+
       } catch (err) {
         console.error('Error fetching user data:', err);
       }
     };
     
     fetchUserData();
-  }, [user.sub, getAccessTokenSilently]);
+  }, [user.sub, getAccessTokenSilently, propUserProfile]);
 
   const handleAadhaarUpload = async () => {
     if (!aadhaarFile) {
@@ -190,15 +199,30 @@ export function UserProfile({ onClose, handleDeleteProject }) {
             <div>
               <h3 className="font-semibold">{userProfile?.username || user?.name || 'User'}</h3>
               <p className="text-sm text-gray-600">{user?.email || 'email@example.com'}</p>
+              {userProfile?.role && (
+                <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${
+                  userProfile.role === 'startup' 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  {userProfile.role === 'startup' ? 'Startup' : 'Investor'}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
         <div className="p-6">
           <div className="flex space-x-2 mb-6 overflow-x-auto">
-            <button onClick={() => setActiveTab('investments')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'investments' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Investments</button>
-            <button onClick={() => setActiveTab('projects')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'projects' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>My Projects</button>
-            <button onClick={() => setActiveTab('negotiations')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'negotiations' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Negotiations</button>
+            {userProfile?.role !== 'startup' && (
+              <button onClick={() => setActiveTab('investments')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'investments' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Investments</button>
+            )}
+            <button onClick={() => setActiveTab('projects')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'projects' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+              {userProfile?.role === 'startup' ? 'My Projects' : 'My Projects'}
+            </button>
+            {userProfile?.role === 'startup' && (
+              <button onClick={() => setActiveTab('negotiations')} className={`flex-1 py-2 text-center rounded-lg ${activeTab === 'negotiations' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>Negotiations</button>
+            )}
           </div>
 
           {activeTab === 'investments' && (
