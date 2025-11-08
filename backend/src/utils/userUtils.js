@@ -1,9 +1,11 @@
 const User = require('../models/User');
 
 async function ensureUser(userId, name, email, userPicture) {
+  console.log('ensureUser called with:', { userId, name, email, userPicture });
   let user = await User.findOne({ auth0Id: userId });
 
   if (!user) {
+    console.log('Creating new user');
     const baseUsername = (name || 'user').replace(/\s+/g, '').toLowerCase();
     let username = baseUsername;
     let counter = 1;
@@ -19,9 +21,61 @@ async function ensureUser(userId, name, email, userPicture) {
       username,
     });
     await user.save();
-  } else if (!user.avatarUrl && userPicture) {
-    user.avatarUrl = userPicture;
-    await user.save();
+    console.log('New user created:', { username: user.username, name: user.name, avatarUrl: user.avatarUrl });
+  } else {
+    console.log('User exists, checking for updates:', { 
+      currentName: user.name, 
+      newName: name,
+      currentAvatar: user.avatarUrl,
+      newAvatar: userPicture 
+    });
+    
+    // Update user information if provided and different from current values
+    let hasUpdates = false;
+    let nameChanged = false;
+    
+    if (name && user.name !== name) {
+      user.name = name;
+      nameChanged = true;
+      hasUpdates = true;
+      console.log('Name updated from', user.name, 'to', name);
+    }
+    
+    if (email && user.email !== email) {
+      user.email = email;
+      hasUpdates = true;
+      console.log('Email updated');
+    }
+    
+    if (userPicture && user.avatarUrl !== userPicture) {
+      user.avatarUrl = userPicture;
+      hasUpdates = true;
+      console.log('Avatar updated from', user.avatarUrl, 'to', userPicture);
+    }
+    
+    // Update username if name has changed
+    if (nameChanged) {
+      const baseUsername = name.replace(/\s+/g, '').toLowerCase();
+      let newUsername = baseUsername;
+      let counter = 1;
+      
+      // Only change username if the new one is different and available
+      while (await User.findOne({ username: newUsername, _id: { $ne: user._id } })) {
+        newUsername = `${baseUsername}${counter++}`;
+      }
+      
+      if (newUsername !== user.username) {
+        user.username = newUsername;
+        console.log('Username updated to', newUsername);
+      }
+    }
+    
+    if (hasUpdates) {
+      await user.save();
+      console.log('User updated successfully');
+    } else {
+      console.log('No updates needed');
+    }
   }
 
   return user;
