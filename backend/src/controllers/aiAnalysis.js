@@ -17,9 +17,86 @@ const openai = new OpenAI({
 // Utility function to delay execution
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Supported file types and their MIME types
+const SUPPORTED_FILE_TYPES = {
+  images: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
+  videos: ['video/mp4', 'video/mpeg', 'video/mov', 'video/webm'],
+  pdfs: ['application/pdf']
+};
+
+// File size limits (in bytes)
+const FILE_SIZE_LIMITS = {
+  image: 10 * 1024 * 1024, // 10MB
+  video: 100 * 1024 * 1024, // 100MB
+  pdf: 50 * 1024 * 1024 // 50MB
+};
+
+// Validate and process uploaded files
+async function validateAndProcessFiles(files) {
+  const processedFiles = [];
+  
+  if (files.length > 5) {
+    throw new Error('Maximum 5 files allowed per request');
+  }
+
+  for (const file of files) {
+    const { type, data, filename } = file;
+    
+    // Validate file type
+    const fileCategory = getFileCategory(type);
+    if (!fileCategory) {
+      throw new Error(`Unsupported file type: ${type}`);
+    }
+
+    // Validate file size
+    const sizeLimit = FILE_SIZE_LIMITS[fileCategory];
+    if (data.length > sizeLimit) {
+      throw new Error(`File ${filename} exceeds size limit of ${Math.round(sizeLimit / 1024 / 1024)}MB`);
+    }
+
+    // Process based on file type
+    let contentItem;
+    if (fileCategory === 'image') {
+      contentItem = {
+        type: 'image_url',
+        image_url: {
+          url: `data:${type};base64,${data}`
+        }
+      };
+    } else if (fileCategory === 'video') {
+      contentItem = {
+        type: 'input_video',
+        video_url: {
+          url: `data:${type};base64,${data}`
+        }
+      };
+    } else if (fileCategory === 'pdf') {
+      contentItem = {
+        type: 'file',
+        file: {
+          filename: filename || 'document.pdf',
+          file_data: `data:${type};base64,${data}`
+        }
+      };
+    }
+
+    processedFiles.push(contentItem);
+  }
+
+  return processedFiles;
+}
+
+// Helper function to categorize file types
+function getFileCategory(mimeType) {
+  if (SUPPORTED_FILE_TYPES.images.includes(mimeType)) return 'image';
+  if (SUPPORTED_FILE_TYPES.videos.includes(mimeType)) return 'video';
+  if (SUPPORTED_FILE_TYPES.pdfs.includes(mimeType)) return 'pdf';
+  return null;
+}
+
 async function aiAnalysis(req, res) {
   try {
-    const { prompt } = req.body;
+    const { prompt, files } = req.body; // Added files parameter
 
     // Stricter input validation
     if (!prompt) {
@@ -41,10 +118,16 @@ async function aiAnalysis(req, res) {
       return res.status(400).json({ message: 'Prompt must contain at least 5 words' });
     }
 
+    // Validate files if provided
+    let processedFiles = [];
+    if (files && Array.isArray(files)) {
+      processedFiles = await validateAndProcessFiles(files);
+    }
+
     const fetchAnalysis = async (retryCount = 0, maxRetries = 3) => {
       try {
-        // Enhanced system prompt with stricter requirements
-        const systemPrompt = `You are a professional business analysis AI. Analyze the provided business description with strict criteria and provide a structured response with:
+        // Enhanced system prompt with multimodal support
+        const systemPrompt = `You are a professional business analysis AI with multimodal capabilities. Analyze the provided business description and any attached files (images, videos, PDFs) with strict criteria and provide a structured response with:
 1. A "Business Analysis Score:" (0-100) based on viability, market potential, and feasibility
 2. An "Analysis:" section with exactly 4-6 bullet points starting with "-"
 
@@ -54,6 +137,10 @@ Requirements:
 - Each analysis point must be specific and actionable
 - Consider market viability, scalability, and risks
 - Provide balanced positive and critical insights
+- If files are provided, analyze them in context of the business description
+- For images: analyze visual elements, products, prototypes, or business materials
+- For videos: analyze demonstrations, presentations, or business operations
+- For PDFs: analyze business plans, financial documents, or market research
 
 Example format:
 Business Analysis Score: 65
@@ -65,18 +152,46 @@ Analysis:
 - Regulatory compliance issues need immediate attention
 - Revenue model shows promising unit economics`;
 
-        const chatCompletion = await openai.chat.completions.create({
-          model: 'google/gemini-2.5-flash',
+        // Build messages array with text and files
+        const messageContent = [
+          {
+            type: 'text',
+            text: promptStr
+          },
+          ...processedFiles
+        ];
+
+        // Add PDF plugin configuration if PDFs are present
+        let plugins = [];
+        const hasPDF = processedFiles.some(file => file.type === 'file');
+        if (hasPDF) {
+          plugins.push({
+            id: 'file-parser',
+            pdf: {
+              engine: 'pdf-text' // Use free text extraction
+            }
+          });
+        }
+
+        const requestBody = {
+          model: 'google/gemini-2.0-flash-001', // Updated to support multimodal
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: promptStr }
+            { role: 'user', content: messageContent }
           ],
-          temperature: 0.7, // Lower temperature for consistency
+          temperature: 0.7,
           max_tokens: 1024,
           top_p: 0.95,
           stream: false,
           stop: null,
-        });
+        };
+
+        // Add plugins if needed
+        if (plugins.length > 0) {
+          requestBody.plugins = plugins;
+        }
+
+        const chatCompletion = await openai.chat.completions.create(requestBody);
 
         const rawResponse = chatCompletion.choices[0].message.content;
         console.log('Raw AI Response:', rawResponse); // Debug logging
