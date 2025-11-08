@@ -3,6 +3,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import MewHeader from './sections/MewHeader';
 import { Hero } from './sections/Hero';
 import { RoleSelection } from './RoleSelection';
+import { ProductShowcase } from './sections/ProductShowcase';
+import { Pricing } from './sections/Pricing';
+
 
 export function Login() { 
   const { loginWithRedirect } = useAuth0();
@@ -13,7 +16,7 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <>
       {/* ✅ Header at the top */}
       <MewHeader />
 
@@ -61,7 +64,9 @@ export function Login() {
         </div>
       </div>
       <Hero />
-    </div>
+      <ProductShowcase />
+      <Pricing />
+      </>
   );
 }
 
