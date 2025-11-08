@@ -14,6 +14,7 @@ export function UserProfile({ onClose, handleDeleteProject }) {
   const [aadhaarCardUrl, setAadhaarCardUrl] = useState(null);
   const [aadhaarFile, setAadhaarFile] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -40,16 +41,11 @@ export function UserProfile({ onClose, handleDeleteProject }) {
         setProjects(userProjects);
         setNegotiationRequests(requests);
 
-        // Fetch user's Aadhaar card URL
-        const userResponse = await fetch(`${API_URL}/projects`, {
-          headers: { 
-            'X-User-ID': user.sub,
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userData = await userResponse.json();
-        const currentUser = userData.find(p => p.userId.auth0Id === user.sub);
-        setAadhaarCardUrl(currentUser?.userId.aadhaarCardUrl || null);
+        // Get user profile data from the first user project's userId data
+        if (userProjects.length > 0 && userProjects[0].userId) {
+          setUserProfile(userProjects[0].userId);
+          setAadhaarCardUrl(userProjects[0].userId.aadhaarCardUrl || null);
+        }
       } catch (err) {
         console.error('Error fetching user data:', err);
       }
@@ -162,9 +158,13 @@ export function UserProfile({ onClose, handleDeleteProject }) {
             </button>
           </div>
           <div className="flex items-center space-x-4">
-            <img src={user?.picture || 'https://via.placeholder.com/64'} alt="Profile" className="w-16 h-16 rounded-full object-cover" />
+            <img 
+              src={userProfile?.avatarUrl || user?.picture || 'https://via.placeholder.com/64'} 
+              alt="Profile" 
+              className="w-16 h-16 rounded-full object-cover" 
+            />
             <div>
-              <h3 className="font-semibold">{user?.name || 'User'}</h3>
+              <h3 className="font-semibold">{userProfile?.username || user?.name || 'User'}</h3>
               <p className="text-sm text-gray-600">{user?.email || 'email@example.com'}</p>
             </div>
           </div>
